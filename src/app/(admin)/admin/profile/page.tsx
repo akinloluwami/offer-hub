@@ -4,8 +4,7 @@ import ProfileOverview from "@/components/admin-profile/ProfileOverview";
 import EditProfileForm from "@/components/admin-profile/EditProfileForm";
 import SecuritySettings from "@/components/admin-profile/SecuritySettings";
 import Sidebar from "@/components/admin/layouts/Sidebar";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+
 
 const mockAdmin = {
   firstName: "Aminu",
@@ -21,7 +20,7 @@ export default function AdminProfilePage() {
   const [view, setView] = useState<View>("overview");
   const [admin, setAdmin] = useState(mockAdmin);
 
-  const handleSaveProfile = (data: any) => {
+  const handleSaveProfile = (data: Partial<typeof mockAdmin>) => {
     setAdmin((prev) => ({ ...prev, ...data }));
     setView("overview");
   };

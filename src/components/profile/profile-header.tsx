@@ -1,19 +1,52 @@
 import Image from "next/image";
+import { User } from '@/types/user.types';
 
-export default function ProfileHeader() {
+interface ProfileHeaderProps {
+  user: User | null;
+  isLoading?: boolean;
+}
+
+export default function ProfileHeader({ user, isLoading }: ProfileHeaderProps) {
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Unknown";
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch {
+      return "Unknown";
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center mb-4 animate-pulse">
+        <div className="relative mb-3">
+          <div className="w-20 h-20 rounded-full bg-gray-200"></div>
+          <div className="absolute bottom-0 right-0 bg-gray-300 rounded-full h-6 w-6"></div>
+        </div>
+        <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+        <div className="h-3 bg-gray-200 rounded w-32"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center mb-4">
       <div className="relative mb-3">
         <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-          <Image
-            src="/placeholder.svg?height=80&width=80"
-            alt="Profile picture"
-            width={80}
-            height={80}
-            className="object-cover"
-          />
+          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg">
+            {getInitials(user?.name || user?.username)}
+          </div>
         </div>
-        <button className="absolute bottom-0 right-0 bg-teal-500 text-white p-1 rounded-full h-6 w-6 flex items-center justify-center">
+        <button className="absolute bottom-0 right-0 bg-teal-500 text-white p-1 rounded-full h-6 w-6 flex items-center justify-center hover:bg-teal-600 transition-colors">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="12"
@@ -31,10 +64,14 @@ export default function ProfileHeader() {
         </button>
       </div>
       <h2 className="text-base font-semibold text-gray-800">
-        Carlos Rodriguez
+        {user?.name || user?.username || "Unknown User"}
       </h2>
-      <p className="text-sm text-gray-600 mb-0.5">Client</p>
-      <p className="text-xs text-gray-500">Member since January 2023</p>
+      <p className="text-sm text-gray-600 mb-0.5">
+        {user?.is_freelancer ? "Freelancer" : "Client"}
+      </p>
+      <p className="text-xs text-gray-500">
+        Member since {formatDate(user?.created_at)}
+      </p>
     </div>
   );
 }

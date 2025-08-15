@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useWallet } from './useWallet.hook';
 import { 
   FREIGHTER_ID, 
@@ -108,7 +109,7 @@ const WalletConnectPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative">
       {/* Back Button - Upper Left */}
-      <a 
+      <Link 
         href="/"
         className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 flex items-center gap-1 p-2 rounded-full hover:bg-gray-100 transition-colors"
       >
@@ -116,7 +117,7 @@ const WalletConnectPage: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         <span>Back</span>
-      </a>
+      </Link>
       
       <div className="w-full max-w-md">
         {/* Header */}
@@ -247,12 +248,12 @@ const WalletConnectPage: React.FC = () => {
           
           {/* Exit Button */}
           <div className="mt-6">
-            <a 
+            <Link 
               href="/"
               className="inline-block text-gray-600 hover:text-gray-800 text-sm border border-gray-300 rounded-full px-5 py-2 transition-colors hover:bg-gray-100"
             >
               Skip wallet connection
-            </a>
+            </Link>
           </div>
         </div>
       </div>

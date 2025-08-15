@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, Address, Env, String, Symbol};
+use soroban_sdk::{contract, contractimpl, Address, Env, String, Symbol, Vec};
 
 mod access;
 mod events;
@@ -91,5 +91,30 @@ impl Contract {
 
     pub fn mint_achv(env: Env, caller: Address, to: Address, nft_type: Symbol) -> Result<(), Error> {
         ReputationNFTContract::mint_achv(env, caller, to, nft_type)
+    }
+
+    /// New rating-based achievement functions
+    pub fn mint_rating_achievement(
+        env: Env,
+        caller: Address,
+        to: Address,
+        achievement_type: String,
+        rating_data: String,
+    ) -> Result<(), Error> {
+        ReputationNFTContract::mint_rating_achievement(env, caller, to, achievement_type, rating_data)
+    }
+
+    pub fn get_user_achievements(env: Env, user: Address) -> Result<Vec<TokenId>, Error> {
+        ReputationNFTContract::get_user_achievements(env, user)
+    }
+
+    pub fn update_reputation_score(
+        env: Env,
+        caller: Address,
+        user: Address,
+        rating_average: u32,
+        total_ratings: u32,
+    ) -> Result<(), Error> {
+        ReputationNFTContract::update_reputation_score(env, caller, user, rating_average, total_ratings)
     }
 }

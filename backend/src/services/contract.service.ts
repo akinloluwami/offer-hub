@@ -5,7 +5,8 @@ import {
   Contract,
   ContractWithUsers,
 } from "@/types/contract.types";
-
+import { UUID_REGEX } from "@/utils/validation";
+import { MissingFieldsError ,ValidationError,ForbiddenError,NotFoundError,InternalServerError, BadRequestError} from "@/utils/AppError";
 class ContractService {
   async createContract(contractData: CreateContractDTO): Promise<Contract> {
     const {
@@ -20,27 +21,25 @@ class ContractService {
 
     // Validate contract type and required fields
     if (contract_type === "project" && !project_id) {
-      throw new Error("project_id is required for project contracts");
+      throw new MissingFieldsError("project_id is required for project contracts");
     }
 
     if (contract_type === "service" && !service_request_id) {
-      throw new Error("service_request_id is required for service contracts");
+      throw new MissingFieldsError("service_request_id is required for service contracts");
     }
 
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-    if (!uuidRegex.test(freelancer_id) || !uuidRegex.test(client_id)) {
-      throw new Error("Invalid freelancer_id or client_id format");
+    if (!UUID_REGEX.test(freelancer_id) || !UUID_REGEX.test(client_id)) {
+      throw new ValidationError("Invalid freelancer_id or client_id format");
     }
 
-    if (project_id && !uuidRegex.test(project_id)) {
-      throw new Error("Invalid project_id format");
+    if (project_id && !UUID_REGEX.test(project_id)) {
+      throw new ValidationError("Invalid project_id format");
     }
 
-    if (service_request_id && !uuidRegex.test(service_request_id)) {
-      throw new Error("Invalid service_request_id format");
+    if (service_request_id && !UUID_REGEX.test(service_request_id)) {
+      throw new ValidationError("Invalid service_request_id format");
     }
 
     // Verify that users exist
@@ -50,12 +49,12 @@ class ContractService {
       .in("id", [freelancer_id, client_id]);
 
     if (usersError || !users || users.length !== 2) {
-      throw new Error("Freelancer or client not found");
+      throw new NotFoundError("Freelancer or client not found");
     }
 
     // Verify that freelancer and client are different
     if (freelancer_id === client_id) {
-      throw new Error("Freelancer and client cannot be the same user");
+      throw new ForbiddenError("Freelancer and client cannot be the same user");
     }
 
     // Create the contract
@@ -89,7 +88,7 @@ class ContractService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to create contract: ${error.message}`);
+      throw new InternalServerError(`Failed to create contract: ${error.message}`);
     }
 
     return contract;
@@ -97,10 +96,8 @@ class ContractService {
 
   async getContractById(contractId: string): Promise<ContractWithUsers | null> {
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(contractId)) {
-      throw new Error("Invalid contract ID format");
+    if (!UUID_REGEX.test(contractId)) {
+      throw new ValidationError("Invalid contract ID format");
     }
 
     const { data: contract, error } = await supabase
@@ -178,10 +175,8 @@ class ContractService {
     userId?: string
   ): Promise<Contract | null> {
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(contractId)) {
-      throw new Error("Invalid contract ID format");
+    if (!UUID_REGEX.test(contractId)) {
+      throw new ValidationError("Invalid contract ID format");
     }
 
     // Get current contract
@@ -209,7 +204,7 @@ class ContractService {
       const allowedTransitions = validTransitions[currentStatus] || [];
 
       if (!allowedTransitions.includes(escrow_status)) {
-        throw new Error(
+        throw new BadRequestError(
           `Invalid status transition from ${currentStatus} to ${escrow_status}`
         );
       }
@@ -217,11 +212,11 @@ class ContractService {
       // Validate user permissions
       if (userId) {
         if (escrow_status === "funded" && userId !== currentContract.client_id) {
-          throw new Error("Only the client can fund the escrow");
+          throw new ForbiddenError("Only the client can fund the escrow");
         }
 
         if (escrow_status === "released" && userId !== currentContract.client_id) {
-          throw new Error("Only the client can release the escrow");
+          throw new ForbiddenError("Only the client can release the escrow");
         }
 
         if (
@@ -229,7 +224,7 @@ class ContractService {
           userId !== currentContract.client_id &&
           userId !== currentContract.freelancer_id
         ) {
-          throw new Error("Only the client or freelancer can dispute");
+          throw new ForbiddenError("Only the client or freelancer can dispute");
         }
       }
     }
@@ -258,7 +253,7 @@ class ContractService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to update contract: ${error.message}`);
+      throw new InternalServerError(`Failed to update contract: ${error.message}`);
     }
 
     return contract;
@@ -267,10 +262,8 @@ class ContractService {
   // Additional utility methods
   async getContractsByUser(userId: string): Promise<ContractWithUsers[]> {
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(userId)) {
-      throw new Error("Invalid user ID format");
+    if (!UUID_REGEX.test(userId)) {
+      throw new ValidationError("Invalid user ID format");
     }
 
     const { data: contracts, error } = await supabase
@@ -305,7 +298,7 @@ class ContractService {
       .order("created_at", { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch user contracts: ${error.message}`);
+      throw new InternalServerError(`Failed to fetch user contracts: ${error.message}`);
     }
 
     // Transform the data to include user info
@@ -379,7 +372,7 @@ class ContractService {
       .order("created_at", { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch contracts by status: ${error.message}`);
+      throw new InternalServerError(`Failed to fetch contracts by status: ${error.message}`);
     }
 
     // Transform the data to include user info

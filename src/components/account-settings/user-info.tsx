@@ -2,9 +2,12 @@ import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import userImage from "../../../public/avatar_olivia.jpg"
+import { User } from '@/types/user.types'
 
 interface UserInfoProps {
+    user: User | null
     isUserActive: boolean
+    isLoading?: boolean
 }
 
 interface ConfirmationModalProps {
@@ -60,7 +63,7 @@ function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, cancelT
     )
 }
 
-export function UserInfo({ isUserActive }: UserInfoProps) {
+export function UserInfo({ user, isUserActive, isLoading }: UserInfoProps) {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleDeactivateClick = () => {
@@ -77,21 +80,55 @@ export function UserInfo({ isUserActive }: UserInfoProps) {
         setIsModalOpen(false)
     }
 
+    const getInitials = (name?: string) => {
+        if (!name) return "U";
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    const formatWalletAddress = (address?: string) => {
+        if (!address) return "Not connected";
+        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col sm:flex-row md:flex md:items-center justify-between gap-3 mb-8">
+                <div className="bg-white flex min-w-[190px] py-3 px-2 rounded-lg justify-around">
+                    <div className="relative animate-pulse">
+                        <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                        <div className="w-3 h-3 absolute z-10 bottom-0 right-1 bg-gray-300 rounded-full"></div>
+                    </div>
+                    <div className="animate-pulse">
+                        <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-20"></div>
+                    </div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded-full w-32 animate-pulse"></div>
+            </div>
+        )
+    }
+
     return (
         <div className="flex flex-col sm:flex-row md:flex md:items-center justify-between gap-3 mb-8">
             <div className="bg-white flex min-w-[190px] py-3 px-2 rounded-lg justify-around">
                 <div className="relative">
                     <Avatar className="w-12 h-12">
                         <AvatarImage src={userImage.src} />
-                        <AvatarFallback className="bg-gray-200">OR</AvatarFallback>
+                        <AvatarFallback className="bg-gray-200">
+                            {getInitials(user?.name)}
+                        </AvatarFallback>
                     </Avatar>
                     <div
                         className={`w-3 h-3 absolute z-10 bottom-0 right-1 ${isUserActive ? "bg-green-500" : "bg-slate-400"} rounded-full`}
                     ></div>
                 </div>
                 <div>
-                    <div className="font-medium">Olivia Rhye</div>
-                    <div className="text-sm text-gray-500">0x030rZ...0YeH</div>
+                    <div className="font-medium">
+                        {user?.name || user?.username || "Unknown User"}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                        {formatWalletAddress(user?.wallet_address)}
+                    </div>
                 </div>
             </div>
             <Button

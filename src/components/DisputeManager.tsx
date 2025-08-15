@@ -6,10 +6,7 @@ interface DisputeManagerProps {
   signerAddress?: string;
 }
 
-export const DisputeManager: React.FC<DisputeManagerProps> = ({
-  contractId,
-  signerAddress
-}) => {
+export const DisputeManager: React.FC<DisputeManagerProps> = () => {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Dispute Management</h2>

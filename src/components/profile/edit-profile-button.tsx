@@ -1,6 +1,41 @@
-export default function EditProfileButton() {
+"use client";
+
+import { useState } from "react";
+import EditProfileForm from "./edit-profile-form";
+import { User } from '@/types/user.types';
+
+interface EditProfileButtonProps {
+  user: User | null;
+  onProfileUpdate: (user: User) => void;
+  disabled?: boolean;
+}
+
+export default function EditProfileButton({ user, onProfileUpdate, disabled }: EditProfileButtonProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (!user) {
+    return null;
+  }
+
+  if (isEditing) {
+    return (
+      <EditProfileForm
+        user={user}
+        onBack={() => setIsEditing(false)}
+        onSave={(updatedUser) => {
+          onProfileUpdate(updatedUser);
+          setIsEditing(false);
+        }}
+      />
+    );
+  }
+
   return (
-    <button className="inline-flex items-center justify-center h-9 px-3 py-1.5 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-md transition-colors">
+    <button 
+      onClick={() => setIsEditing(true)}
+      disabled={disabled}
+      className="inline-flex items-center justify-center h-9 px-3 py-1.5 bg-teal-500 hover:bg-teal-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-4 w-4 mr-1.5"

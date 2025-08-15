@@ -11,7 +11,6 @@ export const createServiceHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => { 
-  try {
     const serviceData: CreateServiceDTO = req.body;
 
     // Validate required fields
@@ -51,25 +50,7 @@ export const createServiceHandler = async (
       message: "Service created successfully",
       data: newService,
     });
-  } catch (error: any) {
-    if (error.message === "User is not a freelancer") {
-      res.status(403).json({
-        success: false,
-        message: "Only freelancers can create services",
-      });
-      return;
-    }
-
-    if (error.message === "User not found") {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-      return;
-    }
-
-    next(error);
-  }
+  
 };
 
 export const getAllServicesHandler = async (
@@ -77,7 +58,7 @@ export const getAllServicesHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const filters: ServiceFilters = {
       category: req.query.category as string,
       min_price: req.query.min
@@ -121,9 +102,7 @@ export const getAllServicesHandler = async (
         per_page: filters.limit || 10,
       },
     });
-  } catch (error) {
-    next(error);
-  }
+ 
 };
 
 export const getServiceByIdHandler = async (
@@ -131,7 +110,7 @@ export const getServiceByIdHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const { id } = req.params;
 
     // Validate UUID format
@@ -160,9 +139,7 @@ export const getServiceByIdHandler = async (
       message: "Service retrieved successfully",
       data: service,
     });
-  } catch (error) {
-    next(error);
-  }
+ 
 };
 
 export const updateServiceHandler = async (
@@ -170,7 +147,7 @@ export const updateServiceHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const { id } = req.params;
     const updateData: UpdateServiceDTO = req.body;
 
@@ -219,19 +196,7 @@ export const updateServiceHandler = async (
       message: "Service updated successfully",
       data: updatedService,
     });
-  } catch (error: any) {
-    if (
-      error.message === "Unauthorized: You can only update your own services"
-    ) {
-      res.status(403).json({
-        success: false,
-        message: "You can only update your own services",
-      });
-      return;
-    }
-
-    next(error);
-  }
+  
 };
 
 export const deleteServiceHandler = async (
@@ -239,7 +204,7 @@ export const deleteServiceHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const { id } = req.params;
     // const userId = req.body.user_id;
 
@@ -268,17 +233,5 @@ export const deleteServiceHandler = async (
       success: true,
       message: "Service deleted successfully",
     });
-  } catch (error: any) {
-    if (
-      error.message === "Unauthorized: You can only delete your own services"
-    ) {
-      res.status(403).json({
-        success: false,
-        message: "You can only delete your own services",
-      });
-      return;
-    }
-
-    next(error);
-  }
+ 
 };

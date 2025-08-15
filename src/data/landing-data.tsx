@@ -11,6 +11,7 @@ export interface Category {
 }
 
 export interface Freelancer {
+  id: string;
   name: string;
   title: string;
   avatar: string;
@@ -63,6 +64,7 @@ export const categories: Category[] = [
 // Data for freelancers section
 export const freelancers: Freelancer[] = [
   {
+    id: "1",
     name: "Alex Morgan",
     title: "UI/UX Designer",
     avatar: "/person1.png",
@@ -72,6 +74,7 @@ export const freelancers: Freelancer[] = [
     verified: true,
   },
   {
+    id: "2",
     name: "Sarah Johnson",
     title: "Full Stack Developer",
     avatar: "/person2.png",
@@ -81,6 +84,7 @@ export const freelancers: Freelancer[] = [
     verified: true,
   },
   {
+    id: "3",
     name: "Michael Chen",
     title: "Digital Marketing Specialist",
     avatar: "/person3.png",

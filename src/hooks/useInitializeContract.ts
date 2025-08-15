@@ -10,7 +10,7 @@
  */
 
 import {
-  InitializeEscrowPayload,
+  // InitializeEscrowPayload, // Temporarily commented - not exported by @trustless-work/escrow
   useInitializeEscrow,
   useSendTransaction,
 } from "@trustless-work/escrow";
@@ -24,7 +24,7 @@ export const useInitializeContract = () => {
 
   // todo: get your private key from your wallet (like @creit.tech/stellar-wallets-kit) or passkey in order to set as the signer
 
-  const handleSubmit = async (payload: InitializeEscrowPayload) => {
+  const handleSubmit = async (payload: any) => { // Temporarily using any - InitializeEscrowPayload not exported
     /**
      * API call by using the trustless work hooks
      * @Note:

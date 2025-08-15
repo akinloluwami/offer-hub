@@ -4,7 +4,7 @@ import {
   NFTAwarded,
   NFTAwardedWithUser,
 } from "@/types/nft.types";
-
+import { InternalServerError,ConflictError, NotFoundError, ValidationError } from "@/utils/AppError";
 class NFTService {
   async registerMintedNFT(nftData: CreateNFTAwardedDTO): Promise<NFTAwarded> {
     const { user_id, nft_type, token_id_on_chain } = nftData;
@@ -17,7 +17,7 @@ class NFTService {
       .single();
 
     if (userError || !user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
 
     // Check if this NFT has already been registered for this user
@@ -31,11 +31,11 @@ class NFTService {
 
     if (checkError && checkError.code !== "PGRST116") {
       // PGRST116 is "not found" error, which is expected
-      throw new Error(`Failed to check existing NFT: ${checkError.message}`);
+      throw new InternalServerError(`Failed to check existing NFT: ${checkError.message}`);
     }
 
     if (existingNFT) {
-      throw new Error("This NFT has already been registered for this user");
+      throw new ConflictError("This NFT has already been registered for this user");
     }
 
     // Register the NFT
@@ -59,7 +59,7 @@ class NFTService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to register NFT: ${error.message}`);
+      throw new InternalServerError(`Failed to register NFT: ${error.message}`);
     }
 
     return nft;
@@ -70,7 +70,7 @@ class NFTService {
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(userId)) {
-      throw new Error("Invalid user ID format");
+      throw new ValidationError("Invalid user ID format");
     }
 
     // First, verify that the user exists
@@ -81,7 +81,7 @@ class NFTService {
       .single();
 
     if (userError || !user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User not found");
     }
 
     // Get all NFTs for the user with user information
@@ -106,7 +106,7 @@ class NFTService {
       .order("minted_at", { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch user NFTs: ${error.message}`);
+      throw new InternalServerError(`Failed to fetch user NFTs: ${error.message}`);
     }
 
     // Transform the data to include user info
@@ -137,7 +137,7 @@ class NFTService {
     const uuidRegex =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(nftId)) {
-      throw new Error("Invalid NFT ID format");
+      throw new ValidationError("Invalid NFT ID format");
     }
 
     const { data: nft, error } = await supabase
@@ -205,7 +205,7 @@ class NFTService {
       .order("minted_at", { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch NFTs by type: ${error.message}`);
+      throw new InternalServerError(`Failed to fetch NFTs by type: ${error.message}`);
     }
 
     // Transform the data to include user info
@@ -237,7 +237,7 @@ class NFTService {
       .select("nft_type");
 
     if (error) {
-      throw new Error(`Failed to fetch NFT types: ${error.message}`);
+      throw new InternalServerError(`Failed to fetch NFT types: ${error.message}`);
     }
 
     // Get unique NFT types

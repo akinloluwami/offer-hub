@@ -11,6 +11,7 @@ import TaxDocuments from "@/components/payments/tax-documents"
 import PaymentMethods from "@/components/payments/payment-methods"
 import { User, Bell, Menu, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 // Simple Header component defined inline
 function SimpleHeader() {
@@ -19,22 +20,22 @@ function SimpleHeader() {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
+            <Link href="/" className="flex items-center">
               <span className="text-xl font-bold text-[#15949C]">Offer Hub</span>
-            </a>
+            </Link>
             <nav className="ml-10 hidden space-x-8 md:flex">
-              <a href="/find-workers" className="text-[#002333] hover:text-[#15949C]">
+              <Link href="/find-workers" className="text-[#002333] hover:text-[#15949C]">
                 Find Talent
-              </a>
-              <a href="/post-project" className="text-[#002333] hover:text-[#15949C]">
+              </Link>
+              <Link href="/post-project" className="text-[#002333] hover:text-[#15949C]">
                 Post a Project
-              </a>
-              <a href="/messages" className="text-[#002333] hover:text-[#15949C]">
+              </Link>
+              <Link href="/messages" className="text-[#002333] hover:text-[#15949C]">
                 Messages
-              </a>
-              <a href="/payments" className="text-[#15949C] font-medium">
+              </Link>
+              <Link href="/payments" className="text-[#15949C] font-medium">
                 Payments
-              </a>
+              </Link>
             </nav>
           </div>
           <div className="flex items-center space-x-4">

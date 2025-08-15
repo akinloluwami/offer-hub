@@ -6,16 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  emailValidated: boolean;
-  identityCard: string;
-  status: string;
-  submissionDate: string;
-};
+import { User } from "@/interfaces/user.interface";
 
 type UserTableProps = {
   filteredData: User[];

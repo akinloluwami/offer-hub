@@ -1,5 +1,5 @@
 import MetricCard from "@/components/admin/components/MetricCard";
-import Notification from "@/components/notification/notificaton";
+
 import { BarChart3Icon, BoxIcon, UsersIcon } from "lucide-react";
 
 export default function Dashboard() {

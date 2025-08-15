@@ -66,6 +66,7 @@ export default function DisputeChat({ onCloseConflict, disputeId }: DisputeChatP
         name: "Support Team",
         role: "admin" as const,
       },
+      isSystem: false,
     };
 
     setMessages([...messages, message]);

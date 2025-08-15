@@ -8,7 +8,7 @@ use crate::storage::{
     get_admin, get_token_owner, is_minter, save_admin, save_token_owner, token_exists, next_token_id,
 };
 use crate::{Error, Metadata, TokenId};
-use soroban_sdk::{Address, Env, String, Symbol, symbol_short};
+use soroban_sdk::{Address, Env, String, Symbol, Vec, symbol_short};
 
 pub struct ReputationNFTContract;
 
@@ -115,5 +115,162 @@ impl ReputationNFTContract {
 
     pub fn transfer_admin(env: Env, caller: Address, new_admin: Address) -> Result<(), Error> {
         transfer_admin_impl(&env, &caller, &new_admin)
+    }
+
+    /// New rating-based achievement functions
+    pub fn mint_rating_achievement(
+        env: Env,
+        caller: Address,
+        to: Address,
+        achievement_type: String,
+        _rating_data: String,
+    ) -> Result<(), Error> {
+        check_minter(&env, &caller)?;
+        
+        let token_id = next_token_id(&env);
+        
+        // Since to_string() is not available in Soroban, we'll do direct string comparison
+        let first_five_star = String::from_str(&env, "first_five_star");
+        let ten_ratings = String::from_str(&env, "ten_ratings");
+        let top_rated_professional = String::from_str(&env, "top_rated_professional");
+        let rating_consistency = String::from_str(&env, "rating_consistency");
+        
+        let (name, description, uri) = if achievement_type == first_five_star {
+            (
+                String::from_str(&env, "First Five Star Rating"),
+                String::from_str(&env, "Awarded for receiving first 5-star rating"),
+                String::from_str(&env, "ipfs://first-five-star"),
+            )
+        } else if achievement_type == ten_ratings {
+            (
+                String::from_str(&env, "Ten Ratings Milestone"),
+                String::from_str(&env, "Awarded for receiving 10 ratings"),
+                String::from_str(&env, "ipfs://ten-ratings"),
+            )
+        } else if achievement_type == top_rated_professional {
+            (
+                String::from_str(&env, "Top Rated Professional"),
+                String::from_str(&env, "Awarded for maintaining excellent ratings"),
+                String::from_str(&env, "ipfs://top-rated-pro"),
+            )
+        } else if achievement_type == rating_consistency {
+            (
+                String::from_str(&env, "Consistency Master"),
+                String::from_str(&env, "Awarded for consistent high-quality ratings"),
+                String::from_str(&env, "ipfs://consistency-master"),
+            )
+        } else {
+            (
+                String::from_str(&env, "Rating Achievement"),
+                String::from_str(&env, "Special rating-based achievement"),
+                String::from_str(&env, "ipfs://rating-achievement"),
+            )
+        };
+        
+        save_token_owner(&env, &token_id, &to);
+        store_metadata(&env, &token_id, name, description, uri)?;
+        
+        // Index by user for easy retrieval
+        Self::index_user_achievement(&env, &to, &token_id);
+        
+        emit_achievement_minted(&env, &to, &Symbol::new(&env, "achievement"), &token_id);
+        Ok(())
+    }
+
+    pub fn get_user_achievements(env: Env, _user: Address) -> Result<Vec<TokenId>, Error> {
+        // In production, this would retrieve all achievements for a user
+        // For now, return empty vector - would need proper indexing implementation
+        Ok(Vec::new(&env))
+    }
+
+    pub fn update_reputation_score(
+        env: Env,
+        caller: Address,
+        user: Address,
+        rating_average: u32,
+        total_ratings: u32,
+    ) -> Result<(), Error> {
+        check_minter(&env, &caller)?;
+        
+        // Store reputation score data
+        Self::store_reputation_score(&env, &user, rating_average, total_ratings);
+        
+        // Check for new achievements based on updated scores
+        Self::check_rating_achievements(&env, &user, rating_average, total_ratings)?;
+        
+        Ok(())
+    }
+
+    // Helper functions
+    fn index_user_achievement(_env: &Env, _user: &Address, _token_id: &TokenId) {
+        // In production, maintain an index of user achievements
+        // This would use a storage pattern like (USER_ACHIEVEMENTS, user, token_id) -> true
+    }
+
+    fn store_reputation_score(env: &Env, user: &Address, rating_average: u32, total_ratings: u32) {
+        // Store the user's current reputation score
+        let reputation_data = (rating_average, total_ratings, env.ledger().timestamp());
+        let reputation_key = (String::from_str(env, "user_reputation"), user);
+        env.storage().persistent().set(&reputation_key, &reputation_data);
+    }
+
+    fn check_rating_achievements(
+        env: &Env,
+        user: &Address,
+        rating_average: u32,
+        total_ratings: u32,
+    ) -> Result<(), Error> {
+        // Auto-award achievements based on rating milestones
+        if total_ratings == 10 && rating_average >= 400 {
+            // Award 10 ratings milestone
+            let token_id = next_token_id(env);
+            Self::mint_milestone_nft(env, user, &token_id, "ten_excellent")?;
+        }
+        
+        if rating_average >= 480 && total_ratings >= 20 {
+            // Award top-rated professional
+            let token_id = next_token_id(env);
+            Self::mint_milestone_nft(env, user, &token_id, "top_rated_pro")?;
+        }
+        
+        if total_ratings >= 50 && rating_average >= 450 {
+            // Award veteran achievement
+            let token_id = next_token_id(env);
+            Self::mint_milestone_nft(env, user, &token_id, "veteran_pro")?;
+        }
+        
+        Ok(())
+    }
+
+    fn mint_milestone_nft(
+        env: &Env,
+        user: &Address,
+        token_id: &TokenId,
+        milestone_type: &str,
+    ) -> Result<(), Error> {
+        let (name, description, uri) = match milestone_type {
+            "ten_excellent" => (
+                String::from_str(env, "Excellence Milestone"),
+                String::from_str(env, "Awarded for 10+ excellent ratings"),
+                String::from_str(env, "ipfs://excellence-milestone"),
+            ),
+            "top_rated_pro" => (
+                String::from_str(env, "Top Rated Professional"),
+                String::from_str(env, "Awarded for exceptional rating performance"),
+                String::from_str(env, "ipfs://top-rated-professional"),
+            ),
+            "veteran_pro" => (
+                String::from_str(env, "Veteran Professional"),
+                String::from_str(env, "Awarded for long-term excellent performance"),
+                String::from_str(env, "ipfs://veteran-professional"),
+            ),
+            _ => return Ok(()), // Skip unknown types
+        };
+        
+        save_token_owner(env, token_id, user);
+        store_metadata(env, token_id, name, description, uri)?;
+        emit_minted(env, user, token_id);
+        
+        Ok(())
     }
 }

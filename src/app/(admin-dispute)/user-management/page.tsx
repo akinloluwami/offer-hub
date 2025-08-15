@@ -6,9 +6,10 @@ import UserVerificationTable from "@/components/user-management/UserVerification
 import UserAnalyticsTable from "@/components/user-management/UserAnalyticsTable"
 import ProfileSection from "@/components/profile/profile-section"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 
-export default function UserVerificationPage() {
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function UserVerificationContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -82,5 +83,14 @@ export default function UserVerificationPage() {
         </Tabs>
       </div>
     </div>
+  )
+}
+
+// Main component that wraps UserVerificationContent in Suspense
+export default function UserVerificationPage() {
+  return (
+    <Suspense fallback={<div className="flex flex-col h-full items-center justify-center">Loading...</div>}>
+      <UserVerificationContent />
+    </Suspense>
   )
 }

@@ -22,7 +22,7 @@ const navigationItems = [
   {
     title: "Create project",
     icon: Plus,
-    href: "/dashboard/create-project",
+    href: "/client/create-project",
   },
   {
     title: "Search Talent",

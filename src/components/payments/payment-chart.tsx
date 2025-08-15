@@ -75,8 +75,8 @@ export default function PaymentChart({ timeframe }: PaymentChartProps) {
         </TabsList>
       </Tabs>
 
-      <ResponsiveContainer width="100%" height="100%">
-        <TabsContent value="line" className="mt-0 h-full">
+      <TabsContent value="line" className="mt-0 h-full">
+        <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
             margin={{
@@ -115,9 +115,11 @@ export default function PaymentChart({ timeframe }: PaymentChartProps) {
               animationBegin={300}
             />
           </LineChart>
-        </TabsContent>
+        </ResponsiveContainer>
+      </TabsContent>
 
-        <TabsContent value="bar" className="mt-0 h-full">
+      <TabsContent value="bar" className="mt-0 h-full">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             margin={{
@@ -153,8 +155,8 @@ export default function PaymentChart({ timeframe }: PaymentChartProps) {
               animationBegin={300}
             />
           </BarChart>
-        </TabsContent>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </TabsContent>
     </div>
   );
 }

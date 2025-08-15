@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useReleaseFunds as usePackageReleaseFunds, useSendTransaction, ReleaseFundsPayload, EscrowRequestResponse } from '@trustless-work/escrow';
+import { useReleaseFunds as usePackageReleaseFunds, useSendTransaction, /* ReleaseFundsPayload, */ EscrowRequestResponse } from '@trustless-work/escrow';
 
 /**
  * Hook to release escrow funds using the @trustless-work/escrow package.
@@ -18,7 +18,7 @@ export const useReleaseFunds = () => {
      * @Note:
      * - We need to pass the payload to the releaseFunds function
      */
-    const handleReleaseFunds = async (payload: ReleaseFundsPayload) => {
+    const handleReleaseFunds = async (payload: any) => { // Temporarily using any - ReleaseFundsPayload not exported
         if (!payload.contractId || !payload.signer) {
             throw new Error('Contract ID and signer are required');
         }

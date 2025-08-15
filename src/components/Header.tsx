@@ -1,6 +1,6 @@
 "use client"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Menu } from "lucide-react"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -19,7 +19,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick, showMenuButton = false }: HeaderProps) {
   const router = useRouter()
-  const pathname = usePathname()
+
 
   const handleProfileClick = () => {
     // Always navigate to verification page with profile tab

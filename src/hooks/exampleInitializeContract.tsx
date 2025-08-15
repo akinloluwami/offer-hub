@@ -1,6 +1,6 @@
 import { useInitializeContract } from "./useInitializeContract";
 
-export const exampleInitializeContract = () => {
+export const ExampleInitializeContract = () => {
   const { handleSubmit } = useInitializeContract();
 
   // Mock payload MultiRelease escrow

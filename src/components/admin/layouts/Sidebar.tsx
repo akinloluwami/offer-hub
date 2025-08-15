@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpIcon, BarChart3Icon, BoxIcon, UsersIcon } from "lucide-react";
+import { ArrowUpIcon, UsersIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import NavItem from "../components/NavItems";
@@ -38,6 +38,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   
   // Function to check if a path is active (exact match or is a subpath)
   const isActive = (path: string) => {
@@ -54,7 +55,6 @@ export default function Sidebar() {
       <div 
         className="flex items-center gap-2 p-6 cursor-pointer" 
         onClick={() => {
-          const router = useRouter();
           router.push('/admin');
         }}
       >

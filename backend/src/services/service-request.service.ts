@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/supabase";
-
+import { ForbiddenError, NotFoundError } from "@/utils/AppError";
+import { ConflictError ,InternalServerError} from "@/utils/AppError";
 export interface ServiceRequest {
   id: string;
   service_id: string;
@@ -41,11 +42,11 @@ export class ServiceRequestService {
       .single();
 
     if (serviceError) {
-      throw new Error("Service not found");
+      throw new NotFoundError("Service not found");
     }
 
     if (service.user_id === data.client_id) {
-      throw new Error("Cannot request your own service");
+      throw new ForbiddenError("Cannot request your own service");
     }
 
     // Check for existing pending requests from the same client to the same service
@@ -58,7 +59,7 @@ export class ServiceRequestService {
       .single();
 
     if (existingRequest) {
-      throw new Error("You already have a pending request for this service");
+      throw new ConflictError("You already have a pending request for this service");
     }
 
     // Create the service request
@@ -74,7 +75,7 @@ export class ServiceRequestService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to create service request: ${error.message}`);
+      throw new InternalServerError(`Failed to create service request: ${error.message}`);
     }
 
     return newRequest;
@@ -105,7 +106,7 @@ export class ServiceRequestService {
       .order("created_at", { ascending: false });
 
     if (error) {
-      throw new Error(`Failed to fetch service requests: ${error.message}`);
+      throw new InternalServerError(`Failed to fetch service requests: ${error.message}`);
     }
 
     return data || [];
@@ -131,15 +132,15 @@ export class ServiceRequestService {
       .single();
 
     if (requestError || !request) {
-      throw new Error("Service request not found");
+      throw new NotFoundError("Service request not found");
     }
 
     if (request.service.user_id !== freelancerId) {
-      throw new Error("You can only update requests for your own services");
+      throw new ForbiddenError("You can only update requests for your own services");
     }
 
     if (request.status !== "pending") {
-      throw new Error("Request has already been processed");
+      throw new ConflictError("Request has already been processed");
     }
 
     // Update the request status
@@ -151,7 +152,7 @@ export class ServiceRequestService {
       .single();
 
     if (error) {
-      throw new Error(`Failed to update service request: ${error.message}`);
+      throw new InternalServerError(`Failed to update service request: ${error.message}`);
     }
 
     return updatedRequest;

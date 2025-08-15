@@ -8,44 +8,52 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ChevronLeft } from "lucide-react"
 import { toast } from "sonner"
+import { User, ProfileFormData } from '@/types/user.types'
+import { useProfileApi, mapFormDataToUpdateDTO, combineName, splitName } from '@/hooks/api-connections/use-profile-api'
 
 interface EditProfileFormProps {
-  user: {
-    firstName: string
-    lastName: string
-    email: string
-    phone?: string
-  }
+  user: User
   onBack: () => void
-  onSave: (data: any) => void
+  onSave: (data: User) => void
 }
 
 export default function EditProfileForm({ user, onBack, onSave }: EditProfileFormProps) {
+  const { firstName, lastName } = splitName(user.name);
   const [formData, setFormData] = useState({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    phone: user.phone || "",
+    firstName,
+    lastName,
+    email: user.email || "",
+    username: user.username || "",
+    bio: user.bio || "",
   })
-  const [isLoading, setIsLoading] = useState(false)
+  const { updateProfile, isLoading, error } = useProfileApi()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      onSave(formData)
+    const profileData: ProfileFormData = {
+      name: combineName(formData.firstName, formData.lastName),
+      username: formData.username,
+      email: formData.email,
+      bio: formData.bio,
+    }
+
+    const updateData = mapFormDataToUpdateDTO(profileData)
+    const success = await updateProfile(user.id, updateData)
+
+    if (success) {
       toast.success("Profile updated", {
         description: "Your profile information has been saved successfully.",
       })
-    } catch (error) {
-      toast.error("Error", {
-        description: "Failed to update profile. Please try again.",
+      // Pass updated user data back to parent
+      onSave({
+        ...user,
+        ...updateData,
       })
-    } finally {
-      setIsLoading(false)
+    } else {
+      toast.error("Error", {
+        description: error?.message || "Failed to update profile. Please try again.",
+      })
     }
   }
 
@@ -121,16 +129,30 @@ export default function EditProfileForm({ user, onBack, onSave }: EditProfileFor
               </div>
 
               <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                  Phone Number:
+                <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                  Username:
                 </Label>
                 <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  placeholder="Phone Number"
+                  id="username"
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => handleChange("username", e.target.value)}
+                  placeholder="Username"
                   className="mt-1 h-12"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="bio" className="text-sm font-medium text-gray-700">
+                  Bio:
+                </Label>
+                <textarea
+                  id="bio"
+                  value={formData.bio}
+                  onChange={(e) => handleChange("bio", e.target.value)}
+                  placeholder="Tell us about yourself..."
+                  className="mt-1 w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-800 resize-none min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 

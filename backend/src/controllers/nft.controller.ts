@@ -7,7 +7,7 @@ export const registerMintedNFTHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const nftData: CreateNFTAwardedDTO = req.body;
 
     // Validate required fields
@@ -49,25 +49,7 @@ export const registerMintedNFTHandler = async (
       message: "NFT minting recorded successfully",
       data: newNFT,
     });
-  } catch (error: any) {
-    if (error.message === "User not found") {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-      return;
-    }
-
-    if (error.message === "This NFT has already been registered for this user") {
-      res.status(409).json({
-        success: false,
-        message: "This NFT has already been registered for this user",
-      });
-      return;
-    }
-
-    next(error);
-  }
+  
 };
 
 export const getNFTsByUserHandler = async (
@@ -75,7 +57,7 @@ export const getNFTsByUserHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const { id } = req.params;
 
     // Validate UUID format
@@ -96,25 +78,7 @@ export const getNFTsByUserHandler = async (
       message: "User NFTs retrieved successfully",
       data: nfts,
     });
-  } catch (error: any) {
-    if (error.message === "User not found") {
-      res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-      return;
-    }
-
-    if (error.message === "Invalid user ID format") {
-      res.status(400).json({
-        success: false,
-        message: "Invalid user ID format",
-      });
-      return;
-    }
-
-    next(error);
-  }
+  
 };
 
 export const getNFTByIdHandler = async (
@@ -122,7 +86,7 @@ export const getNFTByIdHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const { id } = req.params;
 
     // Validate UUID format
@@ -151,17 +115,7 @@ export const getNFTByIdHandler = async (
       message: "NFT retrieved successfully",
       data: nft,
     });
-  } catch (error: any) {
-    if (error.message === "Invalid NFT ID format") {
-      res.status(400).json({
-        success: false,
-        message: "Invalid NFT ID format",
-      });
-      return;
-    }
-
-    next(error);
-  }
+  
 };
 
 export const getNFTsByTypeHandler = async (
@@ -169,7 +123,7 @@ export const getNFTsByTypeHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+ 
     const { type } = req.params;
 
     if (!type || type.trim().length === 0) {
@@ -187,9 +141,7 @@ export const getNFTsByTypeHandler = async (
       message: "NFTs by type retrieved successfully",
       data: nfts,
     });
-  } catch (error) {
-    next(error);
-  }
+ 
 };
 
 export const getNFTTypesHandler = async (
@@ -197,7 +149,7 @@ export const getNFTTypesHandler = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  try {
+
     const types = await nftService.getNFTTypes();
 
     res.status(200).json({
@@ -205,7 +157,5 @@ export const getNFTTypesHandler = async (
       message: "NFT types retrieved successfully",
       data: types,
     });
-  } catch (error) {
-    next(error);
-  }
+  
 }; 

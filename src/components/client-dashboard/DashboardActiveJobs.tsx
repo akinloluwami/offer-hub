@@ -106,8 +106,6 @@ function JobCard({ job }: { job: JobPost }) {
             Search talents
           </Button>
         </Link>
-          Search talents
-        </Button>
       </CardContent>
     </Card>
   );

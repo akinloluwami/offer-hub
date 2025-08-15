@@ -5,7 +5,7 @@ export const createServiceRequestHandler = async (
   req: Request,
   res: Response
 ) => {
-  try {
+
     const { service_id, client_id, message } = req.body;
 
     // Validate required fields
@@ -43,32 +43,14 @@ export const createServiceRequestHandler = async (
       message: "Service request created successfully",
       data: serviceRequest,
     });
-  } catch (error) {
-    console.error("Error creating service request:", error);
-
-    if (error instanceof Error) {
-      if (error.message.includes("Cannot request your own service")) {
-        return res.status(400).json({ error: error.message });
-      }
-      if (error.message.includes("already have a pending request")) {
-        return res.status(409).json({ error: error.message });
-      }
-      if (error.message.includes("Service not found")) {
-        return res.status(404).json({ error: error.message });
-      }
-    }
-
-    res.status(500).json({
-      error: "Internal server error while creating service request",
-    });
-  }
+  
 };
 
 export const getRequestsForFreelancerHandler = async (
   req: Request,
   res: Response
 ) => {
-  try {
+
     const { freelancerId } = req.params;
 
     // Validate UUID format
@@ -89,19 +71,14 @@ export const getRequestsForFreelancerHandler = async (
       data: requests,
       count: requests.length,
     });
-  } catch (error) {
-    console.error("Error fetching service requests:", error);
-    res.status(500).json({
-      error: "Internal server error while fetching service requests",
-    });
-  }
+ 
 };
 
 export const updateRequestStatusHandler = async (
   req: Request,
   res: Response
 ) => {
-  try {
+
     const { id } = req.params;
     const { status } = req.body;
 
@@ -142,25 +119,5 @@ export const updateRequestStatusHandler = async (
       message: `Service request ${status} successfully`,
       data: updatedRequest,
     });
-  } catch (error) {
-    console.error("Error updating service request:", error);
-
-    if (error instanceof Error) {
-      if (error.message.includes("not found")) {
-        return res.status(404).json({ error: error.message });
-      }
-      if (
-        error.message.includes("can only update requests for your own services")
-      ) {
-        return res.status(403).json({ error: error.message });
-      }
-      if (error.message.includes("already been processed")) {
-        return res.status(409).json({ error: error.message });
-      }
-    }
-
-    res.status(500).json({
-      error: "Internal server error while updating service request",
-    });
-  }
+  
 };

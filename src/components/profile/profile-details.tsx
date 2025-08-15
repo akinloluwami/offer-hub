@@ -1,4 +1,51 @@
-export default function ProfileDetails() {
+"use client";
+
+import { User } from '@/types/user.types';
+
+interface ProfileDetailsProps {
+  user: User | null;
+  isLoading?: boolean;
+}
+
+export default function ProfileDetails({ user, isLoading }: ProfileDetailsProps) {
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="mb-6">
+          <h3 className="text-base font-semibold text-gray-800 mb-3">
+            Personal Information
+          </h3>
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-1.5">
+                <div className="h-4 bg-gray-200 rounded w-16"></div>
+                <div className="h-9 bg-gray-200 rounded"></div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="h-4 bg-gray-200 rounded w-20"></div>
+                <div className="h-9 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-1.5">
+                <div className="h-4 bg-gray-200 rounded w-16"></div>
+                <div className="h-9 bg-gray-200 rounded"></div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                <div className="h-9 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+            <div className="mb-4 space-y-1.5">
+              <div className="h-4 bg-gray-200 rounded w-8"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <div className="mb-6">
@@ -17,7 +64,7 @@ export default function ProfileDetails() {
             <input
               id="fullName"
               type="text"
-              value="Carlos Rodriguez"
+              value={user?.name || 'Not provided'}
               readOnly
               className="w-full h-9 px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none"
             />
@@ -33,7 +80,7 @@ export default function ProfileDetails() {
             <input
               id="email"
               type="email"
-              value="carlos.rodriguez@example.com"
+              value={user?.email || 'Not provided'}
               readOnly
               className="w-full h-9 px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none"
             />
@@ -43,15 +90,15 @@ export default function ProfileDetails() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="space-y-1.5">
             <label
-              htmlFor="phone"
+              htmlFor="username"
               className="block text-xs font-medium text-gray-600"
             >
-              Phone Number
+              Username
             </label>
             <input
-              id="phone"
-              type="tel"
-              value="+34 612 345 678"
+              id="username"
+              type="text"
+              value={user?.username || 'Not provided'}
               readOnly
               className="w-full h-9 px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none"
             />
@@ -59,17 +106,17 @@ export default function ProfileDetails() {
 
           <div className="space-y-1.5">
             <label
-              htmlFor="location"
+              htmlFor="walletAddress"
               className="block text-xs font-medium text-gray-600"
             >
-              Location
+              Wallet Address
             </label>
             <input
-              id="location"
+              id="walletAddress"
               type="text"
-              value="Madrid, Spain"
+              value={user?.wallet_address || 'Not provided'}
               readOnly
-              className="w-full h-9 px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none"
+              className="w-full h-9 px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none font-mono text-xs"
             />
           </div>
         </div>
@@ -85,23 +132,21 @@ export default function ProfileDetails() {
             id="bio"
             readOnly
             className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-800 resize-none min-h-[60px] focus:outline-none"
-            value="Entrepreneur and business owner looking for talented freelancers to help with various digital projects."
+            value={user?.bio || 'No bio provided'}
           ></textarea>
         </div>
 
         <div className="space-y-1.5">
           <label className="block text-xs font-medium text-gray-600">
-            Skills
+            User Type
           </label>
-          <div className="flex flex-wrap gap-1.5">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-green-100 text-black border border-green-200">
-              Project Management
-            </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-green-100 text-black border border-green-200">
-              Marketing
-            </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-green-100 text-black border border-green-200">
-              Business Strategy
+          <div className="flex">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal border ${
+              user?.is_freelancer 
+                ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                : 'bg-green-100 text-green-800 border-green-200'
+            }`}>
+              {user?.is_freelancer ? 'Freelancer' : 'Client'}
             </span>
           </div>
         </div>
